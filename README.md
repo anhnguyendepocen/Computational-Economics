@@ -1,6 +1,6 @@
 # Computational-Economics
 
-Problems
+Codes
 
 1.3 segregation.m
 
