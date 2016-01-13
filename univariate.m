@@ -11,7 +11,9 @@ disp(['The root of problem 2.1 is: ', num2str(x1,' %.4f ')]);
 y = -exp(-x) + exp(-x^2);
 g2 = matlabFunction(y);
 [x2, f2] = bisection(g2, [-0.5; 0.5], 1e-8, 1e8);
-disp(['The root of problem 2.2 is: ', num2str(x2,' %.4f ')]);
+disp(['The first root of problem 2.2 is: ', num2str(x2,' %.4f ')]);
+[x2, f2] = bisection(g2, [0.5; 1.5], 1e-8, 1e8);
+disp(['The second root of problem 2.2 is: ', num2str(x2,' %.4f ')]);
 
 a = 3; b = 0.5; c = 1; d = 1; phi=0.5;
 y = b*x + d*x^phi - (a-c);
