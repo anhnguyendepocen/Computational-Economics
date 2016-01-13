@@ -13,7 +13,7 @@ iter = 0;
 while (xh-xl)>crit*(1+abs(xl)+abs(xh)) && iter<=niter
     iter = iter + 1;
     xm = (xl+xh)/2; fm = f(xm);
-    if (fm==0) break; end;
+     if (fm==0) break; end;
     if fl*fm < 0
         xh = xm; fh = fm;
     else

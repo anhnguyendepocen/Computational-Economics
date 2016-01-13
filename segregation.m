@@ -3,7 +3,7 @@ close all; clear all;
 
 global H F S nh nw nb n rep Tempvec thres ccrit lcrit zcrit
 
-nh = 225; nw = 110; nb = 110; rep = 45; thres = 0.35;
+nh = 225; nw = 110; nb = 110; rep = 45; thres = input('The discrimination rate:');
 
 n = sqrt(nh);
 

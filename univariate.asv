@@ -21,6 +21,6 @@ ds = matlabFunction(y);
 [q1,qf1] = bisection(ds, [0; 2], 1e-8, 1e8); % Solve question 2.3 with bisection function
 p1 = a - b*q1;
 disp(['The solution of problem 3 with the bisection method is: ', ' q = ', num2str(q1,' %.4f, '), ' p = ', num2str(p1,' %.4f ')]);
-q2 = fzero(ds, 1); % Solve question 2.3 with fzero function
+q2 = fzero(ds, 1); % Solve question 3 with fzero function
 p2 = a - b*q2;
 disp(['The solution of problem 3 with fzero command is: ', ' q = ', num2str(q2,' %.4f, '), ' p = ', num2str(p2,' %.4f ')]);
