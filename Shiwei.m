@@ -1,8 +1,7 @@
 close all; 
 clear all 
 clc;
-
-
+disp(' ')
 disp('PS1 Q2')
 disp(' ')
 %% load data
