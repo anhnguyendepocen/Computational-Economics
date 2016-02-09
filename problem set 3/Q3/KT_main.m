@@ -20,8 +20,7 @@ options     = optimset('Display','none', 'MaxIter', 2000, 'MaxFunEvals', 2000);
 xini = [1;1;1;1;1;1;1;1];
 
 y1 = [1; 5];
-f1 = @(x) KTeqs(x,y1);
-[x1, fv1, ef1] = fsolve(f1, xini, options);
+[x1, fv1, ef1] = fsolve(@(x) KTeqs(x,y1), xini, options);
 
 if (ef1 == 1 && isreal(x1))
     converged='fsolve converged';

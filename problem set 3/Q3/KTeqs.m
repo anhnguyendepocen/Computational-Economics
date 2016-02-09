@@ -6,7 +6,7 @@ globalvarKT
 c1 = x(1,1); c2 = x(2,1); 
 ik = x(3,1); ih = x(4,1); 
 alphak = x(5,1); alphah = x(6,1);
-mu1 = x(7,1); mu2 = x(8,1);
+mu1 = -x(7,1); mu2 = -x(8,1);
 
 % state variables
 k1 = y(1,1); h1 = y(2,1);

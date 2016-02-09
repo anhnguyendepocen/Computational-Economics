@@ -1,0 +1,177 @@
+\documentclass[11pt]{article}
+
+\usepackage[lf]{Baskervaldx} % lining figures
+\usepackage[bigdelims,vvarbb]{newtxmath} % math italic letters from Nimbus Roman
+\usepackage[cal=boondoxo]{mathalfa} % mathcal from STIX, unslanted a bit
+\renewcommand*\oldstylenums[1]{\textosf{#1}}
+
+\usepackage[framed]{matlab-prettifier}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bm}
+\usepackage[a4paper,hmargin=1in,vmargin=1in]{geometry}
+
+\usepackage{graphicx}
+\usepackage{color}
+
+\usepackage[hyphens]{url}
+\usepackage[colorlinks,linkcolor=red,anchorcolor=black,citecolor=blue]{hyperref}
+
+\newcommand{\alp}{\ensuremath{\alpha}}
+\newcommand{\bet}{\ensuremath{\beta}}
+\newcommand{\tht}{\ensuremath{\theta}}
+
+\begin{document}
+
+\section*{Problem 4}
+
+\subsection*{4.1}
+
+For consumer's problem, substitute the budget constraint into the objective to eliminate $C$, and the optimal conditions are:
+\begin{align}
+& \frac{1}{C_t} = \bet (1 + r_{t+1} - \delta) \frac{1}{C_{t+1}}, \\
+& C_t + K_{t+1} = (1 + r_t - \delta) K_t + w_t.
+\end{align}
+For firm's problem, the optimal conditions are (when $L_t = 1$):
+\begin{align}
+& \alp K_t^{\alp-1} = r_t, \\
+& (1-\alp) K_t^\alp = w_t.
+\end{align}
+Note: as household's and firm's objective functions are concave, the first-order conditions are sufficient for solving the problems.
+
+\subsection*{4.2}
+Given that $C_t = C_{t+1}$, the steady state values are: $$ r^* = \frac{1}{\bet} - 1 + \delta \ \rightarrow \ K^* = (\frac{r^*}{\alp})^{\frac{1}{\alp-1}}\ \rightarrow \ w^* = (1-\alp) (K^*)^\alp\ \rightarrow \ C^* = w^* + (r^* - \delta)K^*. $$ When $\bet = 0.96$, $\alp = 0.36$, $\delta = 0.06$, these values become $$ r^* = 0.102, \quad K^* = 7.211, \quad w^* = 1.303, \quad C^* = 1.604. $$
+
+\subsection*{4.3}
+In the following, first construct a vector $z$ of Chebyshev nodes on $[-1,1]$, and a vector $K$ of associated nodes on $[0.5K^*, 1.5K^*]$, and store the values Chebyshev polynomials in matrix $T(K)$. Suppose $\tilde{C}(K) = \sum_{i=0}^n \tht_i T_i(K) = T(K) \tht$ is the approximated consumption policy, so that the Euler equation implies:
+\begin{align*}
+& \tilde{C}(K') - \bet (1 + \alp K'^{\alp-1} - \delta) \tilde{C}(K) \\
+= & \tilde{C}(K^\alp + (1 - \delta) K - \tilde{C}(K)) - \bet (1 + \alp (K^\alp + (1 - \delta) K - \tilde{C}(K))^{\alp-1} - \delta) \tilde{C}(K)
+\end{align*}
+With a initial guess $K = K'$, $\tilde{C}(K) = (r - \delta)K + w = K^\alp - \delta K$, and so $\tht_0 = T(K) \backslash (K^\alp - \delta K)$. Under more general situation, we solve $\tht$ by a nonlinear system of equations:$$ T(K_j^\alp + (1-\delta) K_j - T(K_j) \tht) \tht - \bet [1 + \alp (K_j^\alp + (1 - \delta) K_j - T(K_j) \tht )^{\alp-1} - \delta] T(K_j) \tht = 0, \quad j = 1, \ldots, m.$$ The vector of roots $\tht^*$ is obtained by using Matlab function $fsolve$ with initial guess $\tht_0$, and the policy functions are $\tilde{C}(K) = T(K)\tht^*$, and $\tilde{K'}(K) = K^\alp + (1-\delta) K - T(K)\tht^*$.
+
+\subsection*{4.4}
+The plot of consumption policy on $[0.5K^*, 1.5K^*]$ is shown below.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\textwidth]{CK}
+\end{figure}
+
+\subsection*{4.5}
+The path of capital for 100 periods that starts with $K_1 = 0.5 K^*$ is shown below. Clearly, the sequence will converge to $K^*$ when the number of period gets larger.
+\subsection*{4.4}
+The plot of consumption policy on $[0.5K^*, 1.5K^*]$ is shown below.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\textwidth]{KpK}
+\end{figure}
+
+\subsection*{4.6}
+Given approximated policies, the Euler equation error is $$E(K; \tht^*) = 1 - \frac{\tilde{C}(\tilde{K'}(K)) - \bet ( 1 + \alp \tilde{K'}(K)^{\alp-1} - \delta) \tilde{C}(K)}{ \tilde{C}(K)}.$$ For $1000$ random draws, the maximum and average absolute errors are $1.9*10^{-7}$ and $5*10^{-8}$.
+
+%But when $m > n$, we wish to find $\{\tht_i\}_{i=1}^n$ as a solution to the least squares problem $$ \min_{ \{\tht_i\} } \sum_{j=1}^m e_j^2= \sum_{j=1}^m [\sum_{i=1}^n \tht_i T_i( f(K_j) - \sum_{i=1}^n \tht_i T_i(K_j) ) - g(K_j) \sum_{i=1}^n \tht_i T_i(K_j) ]^2.$$
+%
+%The Matlab function \emph{diff} is used to calculate the first-order conditions, and the function \emph{fsolve} is used to derive the estimated parameters.
+%
+%The $n$ first-order conditions are
+%$$ 2 \sum_{j=1}^m e_j [ T_i( f(K_j) - \sum_{i=1}^n \tht_i T_i(K_j) ) - \tht_i T_i(K_j) \frac{d T_i}{d K'}|_{K' = f(K_j) - \sum_{i=1}^n \tht_i T_i(K_j)} - g(K_j) T_i(K_j) ] = 0, $$ 
+%where $dT_i/dK' = i \sin(i\arccos(K')) (1-K^2)^{-\frac{1}{2}}$.
+
+\appendix
+
+\section*{Matlab codes}
+
+\subsection*{Problem 4}
+
+\begin{lstlisting}[style=Matlab-editor]
+clc; clear all; close all;
+
+%% Parameters
+bet = 0.96; alp = 0.36; del = 0.06;
+
+%% The steady state
+rs = 1/bet - 1 + del;
+Ks = (rs/alp)^(1/(alp-1));
+ws = (1-alp)*Ks^alp;
+Cs = ws + (rs - del)*Ks;
+fprintf('Steady state: r = %4.3f, K = %4.3f, w = %4.3f, C = %4.3f. \n', rs, Ks, ws, Cs);
+
+%% Chebyshev nodes and matrix
+m = input('m = '); % # nodes (indexed by j)
+n = input('n = '); % # Chebyshev functions - 1 (indexed by i)
+a = 0.5*Ks; b = 1.5*Ks;
+
+z = -cos( (2*[1:m]-1)/(2*m) * pi )';
+K = (z*(b - a) + a + b)/2;
+
+for j = 1:m
+    for i = 1:n+1
+        T(j,i) = cos((i - 1)*acos(z(j)));
+    end
+end
+
+%% Chebyshev approximation (when m = n+1!)
+tht0 = T\(K.^alp - del.*K); % initial guess: K = Kp
+tht = sym('tht', [n+1, 1]);
+
+Kp = K.^alp + (1-del).*K - T*tht;
+for j = 1:m
+    for i = 1:n+1
+        Tp(j,i) = cos((i - 1)*acos( 2*(Kp(j) - a)/(b - a) - 1 ));
+    end
+end
+f = Tp*tht - bet*(1 + alp*Kp.^(alp - 1) - del).*(T*tht);
+
+merr = matlabFunction(f,'Vars',{[tht]});
+thts = fsolve(merr,tht0);
+
+syms Ksym; Cpoli = 0;
+for i = 1:n+1
+    Cpoli = Cpoli+thts(i)*cos((i-1)*acos( 2*(Ksym-a)/(b-a) - 1));
+end
+Kppoli = Ksym^alp + (1-del)*Ksym - Cpoli;
+mCpoli = matlabFunction(Cpoli); mKppoli = matlabFunction(Kppoli);
+
+%% Plot C against K
+figure
+hold on
+set(gcf,'color','w');
+xlabel('K_t'); ylabel('C_t');
+fplot(mCpoli, [a,b]);
+print('CK','-dpng');
+
+%% Plot Kp against K
+t = 100; Ksim(1) = 0.5*Ks;
+for i = 1:t
+    Ksim(i+1) = mKppoli(Ksim(i));
+end
+
+figure
+hold on
+set(gcf,'color','w');
+xlabel('K_t'); ylabel('K_{t+1}');
+scatter(Ksim([1:end-1]),Ksim([2:end]),'b','fill'); plot(Ksim(1)-0.5:Ksim(end)+0.5,Ksim(1)-0.5:Ksim(end)+0.5);
+legend('K_{t+1} = g(K_t)', 'K_{t+1} = K_t', 'Location', 'northwest');
+text(Ksim(1)-0.5,Ksim(2)+0.3,'1st period')
+text(Ksim(5)-0.5,Ksim(6)+0.3,'5th period')
+text(Ksim(10)-0.5,Ksim(11)+0.3,'10th period')
+print('KpK','-dpng');
+
+%% Euler equation error
+ndraw = 1000;
+Krand = 0.5*Ks + Ks.*rand(1,ndraw);
+
+err = zeros(1,ndraw);
+for i = 1:ndraw
+    err(i) = ( mCpoli( mKppoli(Krand(i)) ) - bet*(1+alp*mKppoli(Krand(i))^(alp-1)-del)*mCpoli(Krand(i)) )/mCpoli(Krand(i));
+end
+
+fprintf('Maximal and average errors %9.8f, %9.8f. \n', max(abs(err)), mean(abs(err)));
+\end{lstlisting}
+
+
+
+\end{document}
+
