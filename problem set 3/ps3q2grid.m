@@ -4,7 +4,7 @@ clc;clear all; close all;
 %  rules in all periods given all possible asset levels
 %  suppose you are given all possible a(t), what is the optimal a(t+1)
 %% Parameters
-beta=0.95;r=0.02;theta=1;T=50;%R=40; if there is a retirement period
+beta=0.99;r=0.02;theta=5;T=4;%R=40; if there is a retirement period
 
 %income setting,can be some progress
 y=zeros(1,T);y(1)=10;t=(1:1:T);
