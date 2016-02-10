@@ -1,10 +1,14 @@
 clc; close all; clear all;
+global gemma
 %Parameters setting
 r_f=0.02;ru=0.5;mu=[0.04,0.06]';delta_sd=[0.1,0.2];w0=100;wmin=0;gemma=2;a0=6;
 rng(321);%set the seed
-cov_m=diag(delta_sd);cov=sqrt(ru)*delta_sd(1)*delta_sd(2);
+cov_m=diag(delta_sd.^2);cov=ru*delta_sd(1)*delta_sd(2);
 cov_m(2)=cov;cov_m(3)=cov;
 r=mu+cov_m*rand(2,1);
+if any(eig(cov_m)<0),
+    error('variance-covariance matrix must be p.d.');
+end;
 %Approximate the expectation by Gauss-Hermite integration using m = 7
 %nodes by the MF-function qnwnorm.
 m=7;n=[m,m];
@@ -12,7 +16,7 @@ m=7;n=[m,m];
 %E=w'*f(x),e.g.w'*exp(x(:,1)+x(:,2))
 
 syms A 
-A0=[1.2,1]';%very sensitive to initial guess
+A0=[1,1]';%very sensitive to initial guess
 Astar=fsolve(@(A)-w'.*1/(1-gemma)*((1+r_f+(x-r_f)*A)*w0-wmin).^(1-gemma),A0);
 
 syms a y
@@ -52,7 +56,7 @@ Astar3=fmincon(@(A)-w'.*1/(1-gemma)*((1+r_f+(x-r_f)*A)*w0-wmin).^(1-gemma),A0,[]
 Astar3c=fmincon(@(A)-w'.*1/(1-gemma)*((1+r_f+(x-r_f)*A)*w0-wmin).^(1-gemma),A0,[],[],[1,1],[1],[0;0],[1;1],[],options);
 wm=(0:10:50);astar3=zeros(2,length(wm));A1=A0;
 for i=1:1:length(wm)
-astar3(:,i)=fmincon(@(A)-w'.*1/(1-gemma)*((1+r_f+(x-r_f)*A)*w0-wm(i)).^(1-gemma),A0,[],[],[],[],[0;0],[1;1],[],options);
+astar3(:,i)=fmincon(@(A)-w'.*1/(1-gemma)*((1+r_f+(x-r_f)*A)*w0-wm(i)).^(1-gemma),A1,[],[],[],[],[0;0],[1;1],[],options);
 A1=astar3(:,i);
 end
 figure
@@ -68,13 +72,89 @@ optset('ncpsolve','type','smooth');
 alpha0=ones(length(mu),1);
 disp(' ');
 disp('constrained problem:');
-a1=zeros(2,length(wm));
-for wmin=0:10:50,
-    i=1;
-    alph=ncpsolve(@ncpalphres,zeros(length(mu),1),ones(length(mu),1),alpha0,w0,wmin,r_f,x,w);
+a1=ones(2,length(wm));
+for i=1:1:6,
+    wmin=10*(i-1);
+    alph=ncpsolve(@ncpalphres,zeros(length(mu),1),ones(length(mu),1),alpha0,w0,wmin,r_f,x,w,gemma);
     alpha0=alph;
     disp(['pf-shares for minimum wealth level ', num2str(wmin), ' are: ', num2str(alph')]); 
     a1(:,i)=alph;i=i+1;
 end;
 figure
 plot(wm,a1(1,:),wm,a1(2,:))
+%unconstrained problem with sample code
+a2=ones(2,length(wm));
+for i=1:1:6
+    wmin=10*(i-1);   
+    alph=broyden(@alphres,alpha0,w0,wmin,r_f,x,w,gemma);
+    alpha0=alph;a2(:,i)=alph;
+    disp(['pf-shares for minimum wealth level ', num2str(wmin), ' are: ', num2str(alph')]); 
+end;
+figure
+plot(wm,a2(1,:),wm,a2(2,:))
+
+gam=2;
+w0 = 100;
+wmin = 20;
+rf = 0.02;
+r = [0.04; 0.06];
+rho = 0.5;
+Std = [0.1; 0.2];
+Cov = rho*Std(1)*Std(2);
+VarCov = diag(Std.^2);
+VarCov(1,2)=Cov;
+VarCov(2,1)=Cov;
+if any(eig(VarCov)<0),
+    error('variance-covariance matrix must be p.d.');
+end;
+n = 7;
+
+[rnodes, rwghts] = qnwnorm([n, n], r, VarCov);
+
+alpha0=ones(length(r),1);%also sensitive in inital guess
+res = alphres(alpha0,w0,wmin,rf,rnodes,rwghts,gam);
+
+% unconstrained problem:
+disp(' ');
+disp('unconstrained problem:');
+w=(0:10:50);
+l=length(w);
+a=ones(l,2);a1=ones(2,l);
+
+for i=1:1:6
+    wmin=0+10*i;   
+    alph=broyden(@alphres,alpha0,w0,wmin,rf,rnodes,rwghts,gam);
+    alpha0=alph;a1(:,i)=alph;
+    disp(['pf-shares for minimum wealth level ', num2str(wmin), ' are: ', num2str(alph')]); 
+end;
+
+plot(w,a1(1,:),w,a1(2,:))
+% constrained problem:
+optset('ncpsolve','type','smooth');
+% USAGE
+%     optset(funcname,optname,optvalue)
+%   INPUTS
+%     funcname : name of function
+%     optname  : name of option
+%     optval   : option value
+n=length(r);
+alpha0=ones(length(r),1);
+disp(' ');
+disp('constrained problem:');
+for wmin=0:10:50,
+    alph=ncpsolve(@ncpalphres,zeros(n,1),ones(n,1),alpha0,w0,wmin,rf,rnodes,rwghts,gam);
+    % [x,fval] = ncpsolve(f,a,b,x,varargin)
+%     Setable options (use OPTSET):
+%     tol       : convergence tolerance
+%     maxit     : maximum number of iterations
+%     maxsteps  : maximum number of backsteps
+%     showiters : display results of each iteration
+%     type      : rootproblem transform, 'smooth' or 'minmax'
+    alpha0=alph;
+    disp(['pf-shares for minimum wealth level ', num2str(wmin), ' are: ', num2str(alph')]); 
+    a(1+wmin/10,:)=alph;
+    
+end;
+figure
+plot(w,a(:,1),w,a(:,2))
+
